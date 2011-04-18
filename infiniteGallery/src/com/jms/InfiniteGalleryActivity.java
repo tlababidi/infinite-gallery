@@ -1,0 +1,75 @@
+package com.jms;
+
+
+
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+
+public class InfiniteGalleryActivity extends Activity {
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        
+        
+        InfiniteGallery gallery = (InfiniteGallery)findViewById(R.id.mygallery);
+        gallery.setAdapter(new ImageAdapter(this));
+    }
+    
+	public class ImageAdapter extends BaseAdapter {
+		private LayoutInflater inflater = null;
+
+        private final Integer[] imageDataList = {
+                R.drawable.a,
+                R.drawable.b,
+                R.drawable.c,
+                R.drawable.d,
+                R.drawable.e,
+                R.drawable.f,
+                R.drawable.g,
+                R.drawable.h,
+                R.drawable.i,
+                R.drawable.j,
+                R.drawable.k,
+                R.drawable.l
+        };
+		
+		public ImageAdapter(Context c) {
+			inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+
+		public int getCount() {
+			if (imageDataList != null) {
+				return imageDataList.length;
+			} else {
+				return 0;
+			}
+		}
+
+		public Object getItem(int position) {
+			return position;
+		}
+
+		public long getItemId(int position) {
+			return position;
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view = convertView;
+			
+			if (view == null) {
+				view = inflater.inflate(R.layout.itemrender, parent, false);
+			}
+			
+			((ImageView) view).setImageResource(imageDataList[position]);
+			return view;
+		}
+	}
+}
