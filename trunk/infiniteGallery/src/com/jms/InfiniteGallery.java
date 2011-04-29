@@ -19,6 +19,7 @@ package com.jms;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -135,7 +136,7 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 		}
 
 		// Reset the multiple-scroll tracking state
-		// mIsFirstScroll = true;
+		mIsFirstScroll = true;
 
 		// Must return true to get matching events for this down event.
 		return true;
@@ -165,15 +166,16 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 			float velocityY) {
 		// TODO Auto-generated method stub
 
-		// if (!mShouldCallbackDuringFling) {
-		// // We want to suppress selection changes
-		//
-		// // Remove any future code to set mSuppressSelectionChanged = false
-		// removeCallbacks(mDisableSuppressSelectionChangedRunnable);
-		//
-		// // This will get reset once we scroll into slots
-		// if (!mSuppressSelectionChanged) mSuppressSelectionChanged = true;
-		// }
+		if (!mShouldCallbackDuringFling) {
+			// We want to suppress selection changes
+			// Remove any future code to set mSuppressSelectionChanged = false
+			removeCallbacks(mDisableSuppressSelectionChangedRunnable);
+			
+			// This will get reset once we scroll into slots
+			if (!mSuppressSelectionChanged) {
+				mSuppressSelectionChanged = true;
+			}
+		}
 
 		// Fling the gallery!
 		if(velocityX < 0) {
@@ -184,9 +186,13 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 			flingLeft = -1;
 		}
 		
-		mFlingRunnable.startUsingVelocity((int) -velocityX);
+		this.moveByVelocity((int) -velocityX);
 
 		return true;
+	}
+	
+	protected void moveByVelocity(float velocity) {
+		mFlingRunnable.startUsingVelocity((int) -velocity);
 	}
 
 	@Override
@@ -200,9 +206,27 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 			float distanceY) {
 		// TODO Auto-generated method stub
 		this.getParent().requestDisallowInterceptTouchEvent(true);
+		
+        // As the user scrolls, we want to callback selection changes so related-
+        // info on the screen is up-to-date with the gallery's selection
+        if (mShouldCallbackDuringFling) {
+            if (mIsFirstScroll) {
+                /*
+                 * We're not notifying the client of selection changes during
+                 * the fling, and this scroll could possibly be a fling. Don't
+                 * do selection changes until we're sure it is not a fling.
+                 */
+                if (!mSuppressSelectionChanged) mSuppressSelectionChanged = true;
+                postDelayed(mDisableSuppressSelectionChangedRunnable, SCROLL_TO_FLING_UNCERTAINTY_TIMEOUT);
+            }
+        } else {
+            if (mSuppressSelectionChanged) {
+            	mSuppressSelectionChanged = false;
+            }
+        }
 
 		trackMotionScroll(-1 * (int) distanceX);
-		// mIsFirstScroll = false;
+		mIsFirstScroll = false;
 		return true;
 	}
 
@@ -272,7 +296,7 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 		if (scrollAmount != 0) {
 			mFlingRunnable.startUsingDistance(scrollAmount);
 		} else {
-			// onFinishedMovement();
+			onFinishedMovement();
 		}
 	}
 
@@ -289,8 +313,11 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 				"updateSelectedItemMetadata :"
 						+ String.valueOf(mSelectedPosition) + "-"
 						+ String.valueOf(mFirstPosition));
+		
+		
 		View child = mSelectedChild = getChildAt(mSelectedPosition
 				- mFirstPosition);
+		
 		if (child == null) {
 			return;
 		}
@@ -312,6 +339,11 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 			// Make sure it is not focusable anymore, since otherwise arrow keys
 			// can make this one be focused
 			oldSelectedChild.setFocusable(false);
+		}
+		
+		//when the loop from end to start, the selectedPosition will be length, but the valid value is 0 to length - 1;
+		if(mSelectedPosition == mItemCount) {
+			mSelectedPosition = 0;
 		}
 	}
 
@@ -385,12 +417,7 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 		// }
 		// }
 
-		int newPos = 0;
-		if (mFirstPosition == mItemCount) {
-			newPos = 0 + newSelectedChildIndex;
-		} else {
-			newPos = mFirstPosition + newSelectedChildIndex;
-		}
+		int newPos = mFirstPosition + newSelectedChildIndex;
 
 		if (newPos != mSelectedPosition) {
 			setSelectedPositionInt(newPos);
@@ -450,7 +477,7 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 			// The above call returned a limited amount, so stop any
 			// scrolls/flings
 			mFlingRunnable.endFling(false);
-			// onFinishedMovement();
+			onFinishedMovement();
 		}
 
 		offsetChildrenLeftAndRight(limitedDeltaX);
@@ -820,7 +847,9 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 			return;
 		}
 
+		mInLayout = true;
 		layout(0, false);
+		mInLayout = false;
 	}
 
 	private void resetList() {
@@ -850,12 +879,12 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 			resetList();
 			return;
 		}
-		//
-		// // Update to the new selected position.
-		// if (mNextSelectedPosition >= 0) {
-		// setSelectedPositionInt(mNextSelectedPosition);
-		// }
-		//
+
+		// Update to the new selected position.
+		if (getSelectedItemPosition() >= 0) {
+			setSelectedPositionInt(getSelectedItemPosition());
+		}
+
 		// All views go in recycler while we are in layout
 		recycleAllViews();
 
@@ -898,6 +927,9 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 		// setNextSelectedPositionInt(mSelectedPosition);
 		//
 		updateSelectedItemMetadata();
+		
+		//send out a event
+		selectionChanged();
 	}
 
 	// put in the cache
@@ -1132,4 +1164,92 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 			scrapHeap.clear();
 		}
 	}
+	
+	/**
+	 * Rewrite the private function from AdapterView
+	 * 
+	 */
+	private boolean mInLayout = false;
+	private SelectionNotifier mSelectionNotifier;
+    private class SelectionNotifier extends Handler implements Runnable {
+        public void run() {
+            if (mDataChanged) {
+                // Data has changed between when this SelectionNotifier
+                // was posted and now. We need to wait until the AdapterView
+                // has been synched to the new data.
+                post(this);
+            } else {
+                fireOnSelected();
+            }
+        }
+    }
+
+    void selectionChanged() {
+        if (getOnItemSelectedListener() != null) {
+            if (mInLayout) {
+                // If we are in a layout traversal, defer notification
+                // by posting. This ensures that the view tree is
+                // in a consistent state and is able to accomodate
+                // new layout or invalidate requests.
+                if (mSelectionNotifier == null) {
+                    mSelectionNotifier = new SelectionNotifier();
+                }
+                mSelectionNotifier.post(mSelectionNotifier);
+            } else {
+                fireOnSelected();
+            }
+        }
+    }
+
+    private void fireOnSelected() {
+        if (getOnItemSelectedListener() == null)
+            return;
+
+        int selection = mSelectedPosition;
+        if (selection >= 0) {
+            View v = getSelectedView();
+            getOnItemSelectedListener().onItemSelected(this, v, selection,
+                    getAdapter().getItemId(selection));
+        } else {
+        	getOnItemSelectedListener().onNothingSelected(this);
+        }
+    }
+	
+    /**
+     * 
+     * Rewrite from gallery
+     */
+    
+    /**
+     * If true, do not callback to item selected listener. 
+     */
+    private boolean mShouldCallbackDuringFling = true;
+    private boolean mSuppressSelectionChanged;
+    private boolean mIsFirstScroll;
+    
+    /**
+     * Duration in milliseconds from the start of a scroll during which we're
+     * unsure whether the user is scrolling or flinging.
+     */
+    private static final int SCROLL_TO_FLING_UNCERTAINTY_TIMEOUT = 250;
+    
+    private void onFinishedMovement() {
+        if (mSuppressSelectionChanged) {
+            mSuppressSelectionChanged = false;
+            
+            // We haven't been callbacking during the fling, so do it now
+            selectionChanged();
+        }
+    }
+    
+    /**
+     * Sets mSuppressSelectionChanged = false. This is used to set it to false
+     * in the future. It will also trigger a selection changed.
+     */
+    private Runnable mDisableSuppressSelectionChangedRunnable = new Runnable() {
+        public void run() {
+            mSuppressSelectionChanged = false;
+            selectionChanged();
+        }
+    };
 }
