@@ -186,7 +186,7 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 			flingLeft = -1;
 		}
 		
-		this.moveByVelocity((int) -velocityX);
+		this.moveByVelocity((int) velocityX);
 
 		return true;
 	}
