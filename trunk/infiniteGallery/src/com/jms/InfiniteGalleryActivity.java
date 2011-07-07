@@ -42,7 +42,8 @@ public class InfiniteGalleryActivity extends Activity {
         AdView adview = (AdView)findViewById(R.id.adView);
         AdRequest re = new AdRequest();
         //re.setTesting(true);
-        re.setGender(AdRequest.Gender.FEMALE); 
+        re.setGender(AdRequest.Gender.FEMALE);
+        
         adview.loadAd(re);
 	}
 

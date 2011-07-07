@@ -21,6 +21,6 @@
 	  	android:layout_height="wrap_content"
 	  	android:layout_weight="0"
 	  	ads:adSize="BANNER"
-	  	ads:adUnitId="a14dbba084368db"
+	  	ads:adUnitId="a14e151dabe8c4a"
 	/>
 </LinearLayout>
