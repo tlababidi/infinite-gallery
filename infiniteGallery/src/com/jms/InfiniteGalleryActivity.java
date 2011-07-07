@@ -25,6 +25,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
+
+
 public class InfiniteGalleryActivity extends Activity {
 	/** Called when the activity is first created. */
 	@Override
@@ -34,6 +38,12 @@ public class InfiniteGalleryActivity extends Activity {
 
 		InfiniteGallery gallery = (InfiniteGallery) findViewById(R.id.mygallery);
 		gallery.setAdapter(new ImageAdapter(this));
+				
+        AdView adview = (AdView)findViewById(R.id.adView);
+        AdRequest re = new AdRequest();
+        //re.setTesting(true);
+        re.setGender(AdRequest.Gender.FEMALE); 
+        adview.loadAd(re);
 	}
 
 	public class ImageAdapter extends BaseAdapter {

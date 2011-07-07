@@ -1,7 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.jms.InfiniteGallery xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:id="@+id/mygallery"
+    android:id="@+id/layout1"
     >
-</com.jms.InfiniteGallery>
+
+	<com.jms.InfiniteGallery
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:id="@+id/mygallery"
+	    android:layout_weight="1"
+	    />
+    
+	<com.google.ads.AdView
+		xmlns:ads="http://schemas.android.com/apk/res/com.jms"
+		android:id="@+id/adView"
+	  	android:layout_width="fill_parent" 
+	  	android:layout_height="wrap_content"
+	  	android:layout_weight="0"
+	  	ads:adSize="BANNER"
+	  	ads:adUnitId="a14dbba084368db"
+	/>
+</LinearLayout>
