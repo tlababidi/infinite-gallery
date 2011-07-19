@@ -27,6 +27,7 @@ import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +86,8 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 	private int mHeightMeasureSpec;
 
 	private int mSpacing = 20;
+	
+	private AdapterContextMenuInfo mContextMenuInfo;
 
 	public InfiniteGallery(Context context) {
 		super(context);
@@ -198,7 +201,32 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 	@Override
 	public void onLongPress(MotionEvent e) {
 		// TODO Auto-generated method stub
-
+		if(mDownTouchPosition < 0) {
+			return;
+		}
+		
+		this.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+		long id = this.getItemIdAtPosition(mDownTouchPosition);
+		dispatchLongPress(mDownTouchView, mDownTouchPosition, id);
+	}
+	
+	private boolean dispatchLongPress(View view, int position, long id) {
+		boolean handled = false;
+		
+		if(this.getOnItemLongClickListener() != null) {
+			handled = this.getOnItemLongClickListener().onItemLongClick(this, mDownTouchView, mDownTouchPosition, id);
+		}
+		
+		if(!handled) {
+			mContextMenuInfo = new AdapterContextMenuInfo(view, position, id);
+			handled = super.showContextMenuForChild(this);
+		}
+		
+		if(handled) {
+			performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+		}
+		
+		return handled;
 	}
 
 	@Override
