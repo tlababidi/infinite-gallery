@@ -22,8 +22,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnLongClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.ads.AdRequest;
 import com.google.ads.AdView;
@@ -38,6 +42,7 @@ public class InfiniteGalleryActivity extends Activity {
 
 		InfiniteGallery gallery = (InfiniteGallery) findViewById(R.id.mygallery);
 		gallery.setAdapter(new ImageAdapter(this));
+		gallery.setOnItemLongClickListener(longClickListener);
 				
         AdView adview = (AdView)findViewById(R.id.adView);
         AdRequest re = new AdRequest();
@@ -46,6 +51,16 @@ public class InfiniteGalleryActivity extends Activity {
         
         adview.loadAd(re);
 	}
+	
+	private OnItemLongClickListener longClickListener = new OnItemLongClickListener() {
+		public boolean onItemLongClick(AdapterView<?> parent, View v, int position,
+				long id) {
+			String temp = "Hello World!";
+			Toast toast = Toast.makeText(getBaseContext(), temp, Toast.LENGTH_SHORT);
+			toast.show();
+			return true;
+		}
+	};
 
 	public class ImageAdapter extends BaseAdapter {
 		private LayoutInflater inflater = null;
