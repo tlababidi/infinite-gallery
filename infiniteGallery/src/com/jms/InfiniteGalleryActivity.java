@@ -43,7 +43,7 @@ public class InfiniteGalleryActivity extends Activity {
 		InfiniteGallery gallery = (InfiniteGallery) findViewById(R.id.mygallery);
 		gallery.setAdapter(new ImageAdapter(this));
 		gallery.setOnItemLongClickListener(longClickListener);
-				
+		//gallery.setMSpacing(50);
         AdView adview = (AdView)findViewById(R.id.adView);
         AdRequest re = new AdRequest();
         //re.setTesting(true);
