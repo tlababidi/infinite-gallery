@@ -87,6 +87,14 @@ public class InfiniteGallery extends AdapterView<Adapter> implements
 
 	private int mSpacing = 20;
 	
+	public int getMSpacing() {
+		return mSpacing;
+	}
+
+	public void setMSpacing(int spacing) {
+		mSpacing = spacing;
+	}
+
 	private AdapterContextMenuInfo mContextMenuInfo;
 
 	public InfiniteGallery(Context context) {
