@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
@@ -43,7 +42,7 @@ public class InfiniteGalleryActivity extends Activity {
 		InfiniteGallery gallery = (InfiniteGallery) findViewById(R.id.mygallery);
 		gallery.setAdapter(new ImageAdapter(this));
 		gallery.setOnItemLongClickListener(longClickListener);
-		//gallery.setMSpacing(50);
+		gallery.setMSpacing(100);
         AdView adview = (AdView)findViewById(R.id.adView);
         AdRequest re = new AdRequest();
         //re.setTesting(true);
