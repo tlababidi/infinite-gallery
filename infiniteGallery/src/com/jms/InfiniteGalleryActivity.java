@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -38,12 +39,15 @@ public class InfiniteGalleryActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-
-		InfiniteGallery gallery = (InfiniteGallery) findViewById(R.id.mygallery);
+		
+		Gallery gallery = (Gallery) findViewById(R.id.mygallery);
 		gallery.setAdapter(new ImageAdapter(this));
-		gallery.setOnItemLongClickListener(longClickListener);
-		gallery.setMSpacing(100);
-        AdView adview = (AdView)findViewById(R.id.adView);
+		gallery.setSpacing(10);
+		gallery.setSelection((Integer.MAX_VALUE/2) - (Integer.MAX_VALUE/2) % 12 );
+
+	    gallery.setOnItemLongClickListener(longClickListener);
+
+		AdView adview = (AdView)findViewById(R.id.adView);
         AdRequest re = new AdRequest();
         //re.setTesting(true);
         re.setGender(AdRequest.Gender.FEMALE);
@@ -75,17 +79,24 @@ public class InfiniteGalleryActivity extends Activity {
 
 		public int getCount() {
 			if (imageDataList != null) {
-				return imageDataList.length;
+				return Integer.MAX_VALUE;
 			} else {
 				return 0;
 			}
 		}
 
 		public Object getItem(int position) {
+			if(position >= imageDataList.length) {
+				position = position % imageDataList.length;
+			}
+			
 			return position;
 		}
 
 		public long getItemId(int position) {
+			if(position >= imageDataList.length) {
+				position = position % imageDataList.length;
+			}
 			return position;
 		}
 
@@ -96,8 +107,20 @@ public class InfiniteGalleryActivity extends Activity {
 				view = inflater.inflate(R.layout.itemrender, parent, false);
 			}
 
+			if(position >= imageDataList.length) {
+				position = position % imageDataList.length;
+			}
+			
 			((ImageView) view).setImageResource(imageDataList[position]);
 			return view;
+		}
+		
+		public int checkPosition(int position) {
+			if(position >= imageDataList.length) {
+				position = position % imageDataList.length;
+			}
+			
+			return position;
 		}
 	}
 }
