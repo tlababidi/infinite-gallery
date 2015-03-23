@@ -1,0 +1,1 @@
+This gallery is link a default android widget gallery. But it has a new feature which supports infinite looping
